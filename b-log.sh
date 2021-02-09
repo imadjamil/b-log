@@ -26,7 +26,6 @@ readonly LOG_LEVEL_OFF=0        # none
 readonly LOG_LEVEL_FATAL=100    # unusable, crash
 readonly LOG_LEVEL_ERROR=200    # error conditions
 readonly LOG_LEVEL_WARN=300     # warning conditions
-readonly LOG_LEVEL_NOTICE=400   # Nothing serious, but notably nevertheless.
 readonly LOG_LEVEL_INFO=500     # informational
 readonly LOG_LEVEL_DEBUG=600    # debug-level messages
 readonly LOG_LEVEL_TRACE=700    # see stack traces
@@ -58,8 +57,7 @@ LOG_LEVELS=(
     "${LOG_LEVEL_FATAL}"  "FATAL"  "${B_LOG_DEFAULT_TEMPLATE}" "\033[41;37m" "\033[0m"
     "${LOG_LEVEL_ERROR}"  "ERROR"  "${B_LOG_DEFAULT_TEMPLATE}" "\033[1;31m" "\033[0m"
     "${LOG_LEVEL_WARN}"   "WARN"   "${B_LOG_DEFAULT_TEMPLATE}" "\033[1;33m" "\033[0m"
-    "${LOG_LEVEL_NOTICE}" "NOTICE" "${B_LOG_DEFAULT_TEMPLATE}" "\033[1;32m" "\033[0m"
-    "${LOG_LEVEL_INFO}"   "INFO"   "${B_LOG_DEFAULT_TEMPLATE}" "\033[37m" "\033[0m"
+    "${LOG_LEVEL_INFO}"   "INFO"   "${B_LOG_DEFAULT_TEMPLATE}" "\033[1;32m" "\033[0m"
     "${LOG_LEVEL_DEBUG}"  "DEBUG"  "${B_LOG_DEFAULT_TEMPLATE}" "\033[1;34m" "\033[0m"
     "${LOG_LEVEL_TRACE}"  "TRACE"  "${B_LOG_DEFAULT_TEMPLATE}" "\033[94m" "\033[0m"
 )
@@ -77,7 +75,7 @@ B_LOG_LOG_VIA_FILE_PREFIX=false # add prefix to log file
 B_LOG_LOG_VIA_FILE_SUFFIX=false # add suffix to log file
 B_LOG_LOG_VIA_SYSLOG=""         # syslog flags so that "syslog 'flags' message"
 B_LOG_TS=""                     # timestamp variable
-B_LOG_TS_FORMAT="%Y-%m-%d %H:%M:%S.%N" # timestamp format
+B_LOG_TS_FORMAT="%Y-%m-%dT%H:%M:%S.{}%z" # timestamp format
 B_LOG_LOG_LEVEL_NAME=""         # the name of the log level
 B_LOG_LOG_MESSAGE=""            # the log message
 
@@ -120,7 +118,6 @@ function B_LOG(){
         echo "                          LOG_LEVEL_FATAL  : ${LOG_LEVEL_FATAL}"
         echo "                          LOG_LEVEL_ERROR  : ${LOG_LEVEL_ERROR}"
         echo "                          LOG_LEVEL_WARN   : ${LOG_LEVEL_WARN}"
-        echo "                          LOG_LEVEL_NOTICE : ${LOG_LEVEL_NOTICE}"
         echo "                          LOG_LEVEL_INFO   : ${LOG_LEVEL_INFO}"
         echo "                          LOG_LEVEL_DEBUG  : ${LOG_LEVEL_DEBUG}"
         echo "                          LOG_LEVEL_TRACE  : ${LOG_LEVEL_TRACE}"
@@ -299,7 +296,8 @@ function B_LOG_print_message() {
     # $2... the rest are messages
     local file_directory=""
     local err_ret_code=0
-    B_LOG_TS=$(date +"${B_LOG_TS_FORMAT}") # get the date
+    export B_LOG_TS_FORMAT=${B_LOG_TS_FORMAT}
+    B_LOG_TS=$(python3 -c 'import time; import os; now = time.time(); mlsec = repr(now).split(".")[1][:3]; print(time.strftime(os.environ["B_LOG_TS_FORMAT"].format(mlsec), time.localtime(now)))') # get the date
     log_level=${1:-"$LOG_LEVEL_ERROR"}
     if [ ${log_level} -gt ${LOG_LEVEL} ]; then # check log level
         if [ ! ${LOG_LEVEL} -eq ${LOG_LEVEL_ALL} ]; then # check log level
@@ -363,7 +361,6 @@ function LOG_LEVEL_OFF()    { B_LOG --log-level ${LOG_LEVEL_OFF} "$@"; }
 function LOG_LEVEL_FATAL()  { B_LOG --log-level ${LOG_LEVEL_FATAL} "$@"; }
 function LOG_LEVEL_ERROR()  { B_LOG --log-level ${LOG_LEVEL_ERROR} "$@"; }
 function LOG_LEVEL_WARN()   { B_LOG --log-level ${LOG_LEVEL_WARN} "$@"; }
-function LOG_LEVEL_NOTICE() { B_LOG --log-level ${LOG_LEVEL_NOTICE} "$@"; }
 function LOG_LEVEL_INFO()   { B_LOG --log-level ${LOG_LEVEL_INFO} "$@"; }
 function LOG_LEVEL_DEBUG()  { B_LOG --log-level ${LOG_LEVEL_DEBUG} "$@"; }
 function LOG_LEVEL_TRACE()  { B_LOG --log-level ${LOG_LEVEL_TRACE} "$@"; }
@@ -375,7 +372,6 @@ function B_LOG_MESSAGE() { B_LOG_print_message "$@"; }
 function FATAL()    { B_LOG_print_message ${LOG_LEVEL_FATAL} "$@"; }
 function ERROR()    { B_LOG_print_message ${LOG_LEVEL_ERROR} "$@"; }
 function WARN()     { B_LOG_print_message ${LOG_LEVEL_WARN} "$@"; }
-function NOTICE()   { B_LOG_print_message ${LOG_LEVEL_NOTICE} "$@"; }
 function INFO()     { B_LOG_print_message ${LOG_LEVEL_INFO} "$@"; }
 function DEBUG()    { B_LOG_print_message ${LOG_LEVEL_DEBUG} "$@"; }
 function TRACE()    { B_LOG_print_message ${LOG_LEVEL_TRACE} "$@"; }

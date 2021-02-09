@@ -2,7 +2,8 @@
 #########################################################################
 # Script Name: b-log
 # Script Version: See B_LOG_VERSION
-# Script Date: 30 June 2016
+# Script Date: 08 February 2021
+# Patch by: Marcello de Sales
 #########################################################################
 #
 # a bash-logging interface, hence the name b-log.

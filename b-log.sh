@@ -316,9 +316,7 @@ function B_LOG_print_message() {
     B_LOG_convert_template ${LOG_FORMAT} || true
     # output to stdout
     if [ "${B_LOG_LOG_VIA_STDOUT}" = true ]; then
-        echo -ne "$LOG_PREFIX"
-        echo -ne "${B_LOG_CONVERTED_TEMPLATE_STRING}"
-        echo -e "$LOG_SUFFIX"
+        echo "$LOG_PREFIX${B_LOG_CONVERTED_TEMPLATE_STRING}$LOG_SUFFIX"
     fi
     # output to file
     if [ ! -z "${B_LOG_LOG_VIA_FILE}" ]; then

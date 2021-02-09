@@ -102,7 +102,7 @@ function B_LOG(){
         echo "Usage: B_LOG [options]"
         echo "  -h, --help              Show usage"
         echo "  -V, --version           Version"
-        echo "  -d, --date-format       Date format used in the log eg. '%Y-%m-%d %H:%M:%S.%N'"
+        echo "  -d, --date-format       Date format used in the log eg. '${B_LOG_TS_FORMAT}'"
         echo "  -o, --stdout            Log over stdout (true/false) default true."
         echo "  -f, --file              File to log to, none set means disabled"
         echo "  --file-prefix-enable    Enable the prefix for the log file"
